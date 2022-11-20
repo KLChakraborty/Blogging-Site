@@ -22,7 +22,7 @@ let createBlog = async (req, res) => {
             return res.status(400).send({ status: false, msg: "Enter valid title" })
         }
 
-        let blogTitle = await blogModel.findOne({ title: req.body.title })// unique Title of Blog
+        let blogTitle = await blogModel.findOne({ title: req.body.title })// unique Title of Blog 
 
         if (blogTitle) {
             return res.status(400).send({ status: false, msg: "Title already exist" })
@@ -81,7 +81,7 @@ const getBlogs = async function (req, res) {
     if(!Object.keys(queryParams).length > 0){
         let savedData = await blogModel.find(filterQuery)
     if(!savedData.length > 0) return res.status(404).send({status: false, msg: "No data found"})
-    return res.status(200).send({status: true, msg: savedData})
+    return res.status(200).send({status: true,  data: savedData})
 }
 
 if(queryParams.authorId)
@@ -90,12 +90,12 @@ if(queryParams.authorId)
             return res.status(400).send({ status: false, msg: "Invalid Author ID" })}
         };
         
-        const blogData = await blogModel.find({$or:[{isDeleted:false, isPublished:true}, queryParams]});
+        const blogData = await blogModel.find({$and:[{isDeleted:false, isPublished:true}, queryParams]});
 
         if ( !blogData.length > 0) {
             return res.status(404).send({ status: false, message: "No blogs found" });
         }
-      return res.status(200).send({ status: true, data: blogData })
+      return res.status(200).send({ status: true,  data: blogData })
     }
 
  catch (error) {
@@ -106,7 +106,7 @@ if(queryParams.authorId)
 //----------------Update the Details of Blog-------------------------------------------------------------------------------------------
 const updateBlogs = async function (req, res) {
     try {
-        const authorId = req.authorId
+        const blogId = req.blogId
 
         let data = req.body;
 
@@ -139,7 +139,7 @@ const updateBlogs = async function (req, res) {
             }
         }
 
-        let updatedData = await blogModel.findOneAndUpdate({ authorId: authorId }, {
+        let updatedData = await blogModel.findOneAndUpdate({ _id: blogId }, {
             $set: { isPublished: true, title: data.title, body: data.body, publishedAt: new Date() },
             $push: { tags: data.tags, subcategory: data.subcategory }
         }, { new: true });
@@ -151,13 +151,12 @@ const updateBlogs = async function (req, res) {
 //----------------------Delete Blog with Blog Id in path params------------------------------
 const deleteBlogs = async function (req, res) {
     try {
-        const authorId = req.authorId
-        await blogModel.findOneAndUpdate({ authorId: authorId }, { $set: { isDeleted: true, deletedAt: new Date() } });
+        const blogId = req.blogId
+        await blogModel.findOneAndUpdate({ _id: blogId }, { $set: { isDeleted: true, deletedAt: new Date() } });
         return res.status(200).send({ status: true, msg: "Blog deleted successfully" })
 
     } catch (error) { res.status(500).send({ status: false, msg: error.message }) }
 };
-
 //----Delete Blog with Specific filters------------------------------------------------------------------------------------
 const deleteByQuery = async function (req, res) {
     try {
