@@ -180,6 +180,8 @@ const deleteByQuery = async function (req, res) {
             if (blogDetails[i].authorId.toString() !== tokensId) {
                 return res.status(403).send({ status: false, msg: "Unauthorised User" })
             }
+            console.log(tokensId)
+            console.log(blogDetails[i].authorId)
             if (blogDetails[i].isDeleted === true) {
                 return res.status(404).send({ status: false, msg: "Blog already deleted" })
             }

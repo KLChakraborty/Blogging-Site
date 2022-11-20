@@ -25,10 +25,10 @@ const authorisation = async function(req, res, next){
     try{
     let blogId = req.params.blogId
     if(!blogId){
-        return res.status(400).send({status: true, msg: "BlogId not present"})
+        return res.status(400).send({status: false, msg: "BlogId not present"})
     }
     if(!objectId(blogId)){
-        return res.status(400).send({status: true, msg: "BlogId is invalid"})
+        return res.status(400).send({status: false, msg: "BlogId is invalid"})
     }
     let availableBlog = await blogModel.findById(blogId)
     
