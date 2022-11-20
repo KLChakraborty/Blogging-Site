@@ -58,8 +58,8 @@ Check if the blogId exists( and is not deleted). If it does, mark it deleted and
 If the blog document doesn't exist then return an HTTP status of 404 with a body like this
 
 DELETE /blogs?queryParams
-Delete blog documents by category, authorid, tag name, subcategory name, unpublished
-If the blog document doesn't exist then return an HTTP status of 404 with a body like this
+Delete blog documents by category, authorid, tag nameme, unpublished
+If the blog document doesn't exist then return an HTTP status of 404 wi, subcategory nath a body like this
 
 
 
@@ -129,10 +129,3 @@ Successful Login Response structure
 }
 Refer https://jsonplaceholder.typicode.com/guide/ for some fake blogs data.
 Note: Create a group database and use the same database in connection string by replacing `groupXDatabase
-
-
-
- if (!authorId || !category || !tags || !subcategory) {
-                        return res.send({ status: false, msg: "Enter the required fields" })
-                     } 
-                }
