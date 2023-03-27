@@ -159,39 +159,48 @@ const deleteBlogs = async function (req, res) {
 //----Delete Blog with Specific filters------------------------------------------------------------------------------------
 const deleteByQuery = async function (req, res) {
     try {
-        let query = req.query
-        if (Object.keys(query).length == 0) {
-            return res.status(400).send({ status: false, msg: "input is required" });
+        const query = req.query
+        const { category , tags, subcategory, authorId } = query
+
+
+        // // // Every time when user want to delete data by query then give author id for authorisation purpose and blog should be not deleted.
+        let findObj = { isDeleted: false  , isPublished : false }
+
+
+        // // // In next line we are looking user is authentic user and he/she can delete blog in own blogs.
+        let tokenAuthorId = req.decodedToken
+        // // Adding one attribute in findObj that is authorId by token data.
+        findObj.authorId = tokenAuthorId
+
+
+
+        if (category) {
+            findObj["category"] = category
         }
-
-        if (query.authorId) {
-            if (!objectId(query.authorId)) {
-                return res.status(400).send({ status: false, msg: "Invalid authorId" })
-            }
+        if (tags) {
+            findObj["tags"] = tags
         }
-
-
-        let blogDetails = await blogModel.find(query)
-        if (!blogDetails.length > 0) {
-            return res.status(404).send({ status: false, message: "Blog not exist" });
+        if (subcategory) {
+            findObj["subcategory"] = subcategory
         }
-        for (let i = 0; i < blogDetails.length; i++) {
-            let tokensId = req.decodedToken
-            if (blogDetails[i].authorId.toString() !== tokensId) {
-                return res.status(403).send({ status: false, msg: "Unauthorised User" })
-            }
-            console.log(tokensId)
-            console.log(blogDetails[i].authorId)
-            if (blogDetails[i].isDeleted === true) {
-                return res.status(404).send({ status: false, msg: "Blog already deleted" })
-            }
-            await blogModel.updateMany(query, { $set: { isDeleted: true, deletedAt: new Date() } })
-            return res.status(200).send({ status: true, msg: "Blog deleted successfully" })
-
-
+        if (authorId) {
+            findObj["authorId"] = authorId
         }
 
 
+
+        // // Any data coming on query or not ?
+        if ( Object.keys(findObj).length <= 3) return res.status(400).send({ Status: false, message: "Please give some data that you want to delete that is not deleted" })
+
+        let data = await blogModel.updateMany(
+            findObj,
+            { $set: { isDeleted: true, deletedAt: Date.now() } }
+        )
+
+        // How many data matched with condition -->
+        if (data.matchedCount <= 0) return res.status(404).send({ status: false, message: "No Data Found" })
+
+        res.status(200).send({ status: true, message: `${data.matchedCount} is deleted` })
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
     }
